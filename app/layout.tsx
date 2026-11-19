@@ -1,4 +1,14 @@
-import { Geist, Geist_Mono, Manrope, Space_Mono } from "next/font/google"
+import {
+  Geist,
+  Geist_Mono,
+  Instrument_Sans,
+  Inter,
+  Inter_Tight,
+  Manrope,
+  Plus_Jakarta_Sans,
+  Rethink_Sans,
+  Space_Mono,
+} from "next/font/google"
 
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
@@ -23,6 +33,31 @@ const spaceMono = Space_Mono({
   variable: "--font-space-mono",
 })
 
+const plusJakarta = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  variable: "--font-plus-jakarta",
+})
+
+const interTight = Inter_Tight({
+  subsets: ["latin"],
+  variable: "--font-inter-tight",
+})
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+})
+
+const instrumentSans = Instrument_Sans({
+  subsets: ["latin"],
+  variable: "--font-instrument",
+})
+
+const rethinkSans = Rethink_Sans({
+  subsets: ["latin"],
+  variable: "--font-rethink",
+})
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -38,14 +73,19 @@ export default function RootLayout({
         "font-sans",
         geist.variable,
         manrope.variable,
-        spaceMono.variable
+        spaceMono.variable,
+        plusJakarta.variable,
+        interTight.variable,
+        inter.variable,
+        instrumentSans.variable,
+        rethinkSans.variable
       )}
     >
       <body>
-        <ThemeProvider>
+        {/* <ThemeProvider> */}
           <Navbar />
           {children}
-        </ThemeProvider>
+        {/* </ThemeProvider> */}
       </body>
     </html>
   )

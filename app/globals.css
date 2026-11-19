@@ -9,6 +9,11 @@
     --font-sans: var(--font-sans);
     --font-manrope: var(--font-manrope);
     --font-space-mono: var(--font-space-mono);
+    --font-plus-jakarta: var(--font-plus-jakarta);
+    --font-inter-tight: var(--font-inter-tight);
+    --font-inter: var(--font-inter);
+    --font-instrument: var(--font-instrument);
+    --font-rethink: var(--font-rethink);
     --color-sidebar-ring: var(--sidebar-ring);
     --color-sidebar-border: var(--sidebar-border);
     --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);

@@ -7,17 +7,22 @@ import { ArrowRight, BriefcaseBusiness, Check, Eye, EyeOff, LockKeyhole, Mail, S
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select"
 import { authClient } from "@/lib/auth-client"
+
+const signUpRoles = ["seeker", "recruiter", "admin"] as const
+type SignUpRole = (typeof signUpRoles)[number]
 
 export type SignUpFormData = {
   name: string
   email: string
   password: string
   confirmPassword: string
+  role: SignUpRole
   callbackUrl: string
 }
 
-type SignUpErrors = Partial<Record<"name" | "email" | "password" | "confirmPassword", string>>
+type SignUpErrors = Partial<Record<"name" | "email" | "password" | "confirmPassword" | "role", string>>
 
 const SignUpPage = () => {
   const [errors, setErrors] = useState<SignUpErrors>({})
@@ -33,15 +38,27 @@ const SignUpPage = () => {
     setSuccessMsg(null)
 
     const formData = new FormData(e.currentTarget)
+    
+    const roleValue = formData.get("role")
+    const role = typeof roleValue === "string" ? roleValue : ""
+    const safeRole: SignUpRole = role === "seeker" || role === "recruiter" || role === "admin" ? role : "seeker"
+
     const data: SignUpFormData = {
       name: String(formData.get("name") ?? "").trim(),
       email: String(formData.get("email") ?? "").trim(),
       password: String(formData.get("password") ?? ""),
       confirmPassword: String(formData.get("confirmPassword") ?? ""),
+      role: safeRole,
       callbackUrl: window.location.origin,
     }
 
+// অবজেক্টে ব্যবহারের সময়:
+
+
     const nextErrors: SignUpErrors = {}
+    if (!signUpRoles.some((option) => option === role)) {
+      nextErrors.role = "Please choose whether you are a job seeker or recruiter."
+    }
     if (!data.name) {
       nextErrors.name = "Please enter your full name."
     }
@@ -64,12 +81,14 @@ const SignUpPage = () => {
     setErrors(nextErrors)
     if (Object.keys(nextErrors).length > 0) return
 
+    const form = e.currentTarget
     setLoading(true)
     try {
       const { error } = await authClient.signUp.email({
         name: data.name,
         email: data.email,
         password: data.password,
+        role: data.role,
         callbackURL: data.callbackUrl,
       })
 
@@ -78,6 +97,8 @@ const SignUpPage = () => {
         return
       }
 
+      form.reset()
+      setErrors({})
       setSuccessMsg("Your account is ready. You can now sign in to HireNest.")
     } catch {
       setErrorMsg("Unable to create your account. Please try again.")
@@ -197,6 +218,29 @@ const SignUpPage = () => {
                   />
                 </div>
                 {errors.email && <p id="email-error" className="text-sm text-destructive">{errors.email}</p>}
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="role">I am a</Label>
+                <NativeSelect
+                  id="role"
+                  name="role"
+                  required
+                  aria-invalid={Boolean(errors.role)}
+                  aria-describedby={errors.role ? "role-error" : undefined}
+                  className="w-full [&>select]:h-11"
+                  onChange={() => {
+                    setErrors((current) => ({ ...current, role: undefined }))
+                    setErrorMsg(null)
+                    setSuccessMsg(null)
+                  }}
+                >
+                  <NativeSelectOption value="">Choose your account type</NativeSelectOption>
+                  <NativeSelectOption value="seeker">Job seeker</NativeSelectOption>
+                  <NativeSelectOption value="recruiter">Recruiter</NativeSelectOption>
+                  <NativeSelectOption value="admin">Admin</NativeSelectOption>
+                </NativeSelect>
+                {errors.role && <p id="role-error" className="text-sm text-destructive">{errors.role}</p>}
               </div>
 
               <div className="flex flex-col gap-2">

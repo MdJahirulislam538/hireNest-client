@@ -13,12 +13,15 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet"
 import { cn } from "@/lib/utils"
+import { authClient, signOut } from "@/lib/auth-client"
 
 const links = [
   { href: "/jobs", label: "Browse Jobs" },
   { href: "/companies", label: "Company" },
   { href: "/pricing", label: "Pricing" },
 ]
+
+ // Log the session data to the console
 
 function NavLink({
   href,
@@ -51,6 +54,17 @@ function NavLink({
 export function Navbar() {
   const pathname = usePathname()
 
+  const {data: session} = authClient.useSession();
+
+  
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+    } catch (error) {
+      console.error("Error signing out:", error);
+    }
+  };
+
   return (
     <header className="sticky top-0 z-40 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
@@ -74,12 +88,25 @@ export function Navbar() {
 
         <div className="hidden items-center gap-3 md:flex">
           <span aria-hidden className="h-6 w-px bg-border" />
-          <Button variant="outline" nativeButton={false} render={<Link href="/sign-in" />}>
-            Sign In
-          </Button>
-          <Button nativeButton={false} render={<Link href="/sign-up" />}>
-            Get Started
-          </Button>
+          {session?.user ? (
+            <div className="flex items-center gap-3">
+              <Button variant="outline" nativeButton={false} render={<Link href="/profile" />}>
+                {session.user.name}
+              </Button>
+              <Button variant="outline" nativeButton={false} render={<Link href="/sign-out" />} onClick={handleSignOut}>
+                Sign Out
+              </Button>
+            </div>
+          ) : (
+            <>
+              <Button variant="outline" nativeButton={false} render={<Link href="/sign-in" />}>
+                Sign In
+              </Button>
+              <Button nativeButton={false} render={<Link href="/sign-up" />}>
+                Get Started
+              </Button>
+            </> 
+          )}
         </div>
 
         {/* Mobile navigation */}
@@ -110,21 +137,25 @@ export function Navbar() {
             </nav>
             <span aria-hidden className="h-px w-full bg-border" />
             <div className="flex flex-col gap-2 px-1">
-              <Button
-                variant="outline"
-                className="h-9 w-full"
-                nativeButton={false}
-                render={<Link href="/sign-in" />}
-              >
-                Sign In
+              {session?.user ? (
+                <div className="flex items-center gap-3">
+              <Button variant="outline" nativeButton={false} render={<Link href="/profile" />}>
+                {session.user.name}
               </Button>
-              <Button
-                className="h-9 w-full"
-                nativeButton={false}
-                render={<Link href="/sign-up" />}
-              >
-                Get Started
+              <Button variant="outline" nativeButton={false} render={<Link href="/sign-out" />} onClick={handleSignOut}>
+                Sign Out
               </Button>
+            </div> 
+              ) : (
+                <>
+                  <Button className="h-9 w-full" variant="outline" nativeButton={false} render={<Link href="/sign-in" />}>
+                    Sign In
+                  </Button>
+                  <Button className="h-9 w-full" nativeButton={false} render={<Link href="/sign-up" />}>
+                    Get Started
+                  </Button>
+                </> 
+              )}
             </div>
           </SheetContent>
         </Sheet>
